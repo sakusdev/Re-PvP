@@ -19,16 +19,24 @@ public sealed class Plugin : BaseUnityPlugin
     private Harmony? _harmony;
     private DebugOverlayRenderer _debugOverlay = null!;
     private DebugCommandController _debugCommandController = null!;
+    private RoundEventBus _roundEventBus = null!;
+    private MessageFeed _messageFeed = null!;
+    private RoundMessagePresenter _roundMessagePresenter = null!;
 
     private void Awake()
     {
         Log = Logger;
         ModConfig = new RePvPConfig(Config);
+        _roundEventBus = new RoundEventBus();
+        _messageFeed = new MessageFeed();
+        _roundMessagePresenter = new RoundMessagePresenter(_roundEventBus, _messageFeed);
+
         RoundManager = new RoundManager(
             ModConfig,
             new UnityPlayerProvider(),
-            new UnityLocalPlayerResolver());
-        _debugOverlay = new DebugOverlayRenderer(ModConfig);
+            new UnityLocalPlayerResolver(),
+            _roundEventBus);
+        _debugOverlay = new DebugOverlayRenderer(ModConfig, _messageFeed);
         _debugCommandController = new DebugCommandController(ModConfig, RoundManager);
 
         if (ModConfig.LogStartupDiagnostics.Value)
@@ -45,6 +53,7 @@ public sealed class Plugin : BaseUnityPlugin
 
     private void OnDestroy()
     {
+        _messageFeed?.Clear();
         _harmony?.UnpatchSelf();
         _harmony = null;
     }
