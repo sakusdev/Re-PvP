@@ -29,6 +29,11 @@ public sealed class DebugCommandController
 
     private void HandleFunctionKeys()
     {
+        if (Input.GetKeyDown(KeyCode.F5))
+        {
+            SpawnDebugPlayers();
+        }
+
         if (Input.GetKeyDown(KeyCode.F6))
         {
             _roundManager.ForceStartRound();
@@ -91,6 +96,13 @@ public sealed class DebugCommandController
 
     private void HandleAdvancedDebugKeys()
     {
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.F12))
+        {
+            DebugPlayerRegistry.Clear();
+            _roundManager.ResetToWaitingForDebug();
+            return;
+        }
+
         if (Input.GetKeyDown(KeyCode.F11))
         {
             _roundManager.LogDebugState();
@@ -100,5 +112,25 @@ public sealed class DebugCommandController
         {
             _roundManager.ResetToWaitingForDebug();
         }
+    }
+
+    private static void SpawnDebugPlayers()
+    {
+        if (DebugPlayerRegistry.HasDebugPlayers)
+        {
+            Plugin.Log.LogInfo("Debug players already exist. Press Ctrl+F12 to clear them first.");
+            return;
+        }
+
+        for (var i = 0; i < 4; i++)
+        {
+            var player = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            player.name = $"RePvP_DebugPlayer_{i + 1}";
+            player.transform.position = new Vector3(i * 2f, 1f, 0f);
+            player.AddComponent<Rigidbody>().isKinematic = true;
+            DebugPlayerRegistry.Register(player);
+        }
+
+        Plugin.Log.LogInfo("Spawned 4 debug players. Press F6 to start a round using them.");
     }
 }
