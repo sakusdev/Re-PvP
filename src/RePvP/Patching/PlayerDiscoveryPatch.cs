@@ -41,7 +41,19 @@ public static class PlayerDiscoveryPatch
             return;
         }
 
+        if (method.IsStatic)
+        {
+            Plugin.Log.LogInfo($"Player discovery patch skipped: {type.FullName}.{method.Name} is static and cannot provide a player instance safely.");
+            return;
+        }
+
         var postfix = typeof(PlayerDiscoveryPatch).GetMethod(nameof(Postfix), BindingFlags.Static | BindingFlags.NonPublic);
+        if (postfix == null)
+        {
+            Plugin.Log.LogWarning("Player discovery patch skipped: postfix method missing.");
+            return;
+        }
+
         harmony.Patch(method, postfix: new HarmonyMethod(postfix));
         Plugin.Log.LogInfo($"Player discovery patch applied: {type.FullName}.{method.Name}");
     }
