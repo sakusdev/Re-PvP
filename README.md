@@ -15,6 +15,28 @@ Heist & Hunter keeps the chaotic physics-based recovery gameplay of R.E.P.O. whi
 - **Hunter** wins by wiping the Heisters, preventing the quota from being reached, or stopping extraction.
 - Monsters may remain as a third-party environmental threat, but should be tuned to avoid pure chaos.
 
+## Current Implementation Status
+
+The repository now contains an early BepInEx/Harmony mod skeleton:
+
+- BepInEx plugin entry point
+- Config bindings
+- Round phase state machine
+- Hunter/Heister role assignment
+- Debug overlay
+- Debug controls
+- Cash-in and extraction bridge APIs
+- Tentative Harmony patch scaffolding
+- Startup dependency diagnostics
+
+The tentative Harmony patches are **disabled by default** until exact R.E.P.O. class and method names are verified.
+
+For local setup, see:
+
+- [`docs/BUILD_AND_TEST.md`](docs/BUILD_AND_TEST.md)
+- [`docs/HOOKING_NOTES.md`](docs/HOOKING_NOTES.md)
+- [`docs/CODEX_NEXT_STEPS.md`](docs/CODEX_NEXT_STEPS.md)
+
 ## Basic Rules
 
 Example default settings:
@@ -62,6 +84,17 @@ The first playable version should stay very small:
 
 See [`docs/MVP_SPEC.md`](docs/MVP_SPEC.md) for the implementation-focused MVP plan.
 
+## Debug Controls
+
+```text
+F6  Start a Re-PvP round
+F7  Add debug cash
+F8  Force alarm/extraction, only after round has started
+F9  End round as Heister win
+F10 End round as Hunter win
+Q   Hunter Pulse Scan, local Hunter only
+```
+
 ## Long-Term Ideas
 
 Possible future systems:
@@ -74,6 +107,6 @@ Possible future systems:
 
 ## Status
 
-Early concept / planning repository.
+Early prototype / planning repository.
 
-No working mod implementation exists yet.
+The mode skeleton exists, but real R.E.P.O. gameplay integration still requires verified hooks for players, cash-in, extraction, movement, and networking.
