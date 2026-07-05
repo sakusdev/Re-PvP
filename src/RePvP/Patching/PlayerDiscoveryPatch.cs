@@ -13,28 +13,23 @@ public static class PlayerDiscoveryPatch
 
     public static void TryPatch(Harmony harmony)
     {
-        // TODO: Replace candidates with exact R.E.P.O. player/session class names.
-        var type = PatchReflection.FindTypeByName(
-            "PlayerAvatar",
-            "PlayerController",
-            "PlayerManager",
-            "SemiFunc",
-            "NetworkPlayer");
+        var typeCandidates = ConfigParsing.SplitCsv(Plugin.ModConfig.PlayerTypeCandidates.Value);
+        var methodCandidates = ConfigParsing.SplitCsv(Plugin.ModConfig.PlayerMethodCandidates.Value);
 
+        if (typeCandidates.Length == 0 || methodCandidates.Length == 0)
+        {
+            Plugin.Log.LogInfo("Player discovery patch skipped: no type or method candidates configured.");
+            return;
+        }
+
+        var type = PatchReflection.FindTypeByName(typeCandidates);
         if (type == null)
         {
             Plugin.Log.LogInfo("Player discovery patch skipped: target type not found yet.");
             return;
         }
 
-        var method = PatchReflection.FindMethod(
-            type,
-            "Start",
-            "Awake",
-            "OnEnable",
-            "Spawn",
-            "SpawnPlayer");
-
+        var method = PatchReflection.FindMethod(type, methodCandidates);
         if (method == null)
         {
             Plugin.Log.LogInfo($"Player discovery patch skipped: no candidate method found on {type.FullName}.");
