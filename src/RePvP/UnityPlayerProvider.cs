@@ -17,6 +17,16 @@ public sealed class UnityPlayerProvider : IPlayerProvider
 
     public IReadOnlyList<PlayerRef> GetPlayers()
     {
+        var debugPlayers = DebugPlayerRegistry.Players
+            .Where(go => go != null && go.activeInHierarchy)
+            .Distinct()
+            .ToList();
+
+        if (debugPlayers.Count >= 2)
+        {
+            return ToPlayerRefs(debugPlayers);
+        }
+
         var discovered = PlayerDiscoveryPatch.SeenPlayers
             .Where(go => go != null && go.activeInHierarchy)
             .Distinct()
@@ -57,7 +67,7 @@ public sealed class UnityPlayerProvider : IPlayerProvider
         }
 
         var name = gameObject.name ?? string.Empty;
-        if (!PlayerNameHints.Any(hint => name.Contains(hint, StringComparison.OrdinalIgnoreCase)))
+        if (!PlayerNameHints.Any(hint => name.IndexOf(hint, StringComparison.OrdinalIgnoreCase) >= 0))
         {
             return false;
         }
