@@ -174,6 +174,7 @@ public sealed class RoundManager
         Plugin.Log.LogInfo($"Hunter: {snapshot.HunterName ?? "None"}");
         Plugin.Log.LogInfo($"Heisters: {snapshot.HeisterCount}");
         Plugin.Log.LogInfo($"Extracted: {snapshot.ExtractedCount}");
+        Plugin.Log.LogInfo($"SerializedState: {RoundStateSerializer.ToJson(snapshot)}");
         LogTeamDetails();
         Plugin.Log.LogInfo("==========================");
     }
