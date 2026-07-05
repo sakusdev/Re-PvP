@@ -17,11 +17,14 @@ public sealed class RoundManager
     private float _phaseTimer;
     private float _roundTimer;
 
-    public RoundManager(RePvPConfig config, IPlayerProvider playerProvider)
+    public RoundManager(
+        RePvPConfig config,
+        IPlayerProvider playerProvider,
+        ILocalPlayerResolver localPlayerResolver)
     {
         _config = config;
         _playerProvider = playerProvider;
-        _hunterAbilityController = new HunterAbilityController(config, _roleManager);
+        _hunterAbilityController = new HunterAbilityController(config, _roleManager, localPlayerResolver);
         _hunterStatController = new HunterStatController(config, _roleManager);
     }
 
