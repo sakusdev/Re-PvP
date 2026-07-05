@@ -38,32 +38,41 @@ public static class ExtractionPatch
         }
 
         var postfix = typeof(ExtractionPatch).GetMethod(nameof(Postfix), BindingFlags.Static | BindingFlags.NonPublic);
+        if (postfix == null)
+        {
+            Plugin.Log.LogWarning("Extraction patch skipped: postfix method missing.");
+            return;
+        }
+
         harmony.Patch(method, postfix: new HarmonyMethod(postfix));
         Plugin.Log.LogInfo($"Extraction patch applied: {type.FullName}.{method.Name}");
     }
 
-    private static void Postfix(object __instance, object? __0 = null)
+    private static void Postfix(object[] __args, MethodBase __originalMethod)
     {
-        // Harmony passes the first original argument as __0 when available.
-        // This supports methods like OnTriggerEnter(Collider other) or ExtractPlayer(GameObject player).
-        if (__0 is Collider collider)
+        foreach (var arg in __args)
         {
-            RePvPApi.NotifyPlayerEnteredExtraction(collider.gameObject);
-            return;
+            if (TryNotifyFromArgument(arg))
+            {
+                return;
+            }
         }
 
-        if (__0 is GameObject gameObject)
-        {
-            RePvPApi.NotifyPlayerEnteredExtraction(gameObject);
-            return;
-        }
+        Plugin.Log.LogInfo($"Extraction patch fired on {__originalMethod.DeclaringType?.FullName}.{__originalMethod.Name}, but no player object argument was detected.");
+    }
 
-        if (__0 is Component component)
+    private static bool TryNotifyFromArgument(object? arg)
+    {
+        switch (arg)
         {
-            RePvPApi.NotifyPlayerEnteredExtraction(component.gameObject);
-            return;
+            case Collider collider:
+                return RePvPApi.NotifyPlayerEnteredExtraction(collider.gameObject);
+            case GameObject gameObject:
+                return RePvPApi.NotifyPlayerEnteredExtraction(gameObject);
+            case Component component:
+                return RePvPApi.NotifyPlayerEnteredExtraction(component.gameObject);
+            default:
+                return false;
         }
-
-        Plugin.Log.LogInfo($"Extraction patch fired on {__instance.GetType().FullName}, but no player object argument was detected.");
     }
 }
