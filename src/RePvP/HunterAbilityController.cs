@@ -7,14 +7,19 @@ public sealed class HunterAbilityController
 {
     private readonly RePvPConfig _config;
     private readonly RoleManager _roleManager;
+    private readonly ILocalPlayerResolver _localPlayerResolver;
 
     private float _pulseCooldownRemaining;
     private float _pulseDurationRemaining;
 
-    public HunterAbilityController(RePvPConfig config, RoleManager roleManager)
+    public HunterAbilityController(
+        RePvPConfig config,
+        RoleManager roleManager,
+        ILocalPlayerResolver localPlayerResolver)
     {
         _config = config;
         _roleManager = roleManager;
+        _localPlayerResolver = localPlayerResolver;
     }
 
     public void Tick(float deltaTime, GamePhase phase)
@@ -35,12 +40,20 @@ public sealed class HunterAbilityController
             return;
         }
 
-        // MVP debug input: this currently activates globally.
-        // TODO: Replace with an input check scoped only to the local Hunter player.
+        if (!IsLocalHunter())
+        {
+            return;
+        }
+
         if (Input.GetKeyDown(KeyCode.Q))
         {
             TryPulseScan();
         }
+    }
+
+    private bool IsLocalHunter()
+    {
+        return _roleManager.Hunter != null && _localPlayerResolver.IsLocalPlayer(_roleManager.Hunter);
     }
 
     private void TryPulseScan()
