@@ -37,9 +37,9 @@ public static class DependencyDiagnostics
 
     public static void LogPatchTargetCandidates()
     {
-        LogTypeCandidate("Player discovery", "PlayerAvatar", "PlayerController", "PlayerManager", "SemiFunc", "NetworkPlayer");
-        LogTypeCandidate("Valuable cash-in", "ValuableObject", "Valuable", "ValuableDirector", "ExtractionPoint", "ShopManager", "StatsManager");
-        LogTypeCandidate("Extraction", "ExtractionPoint", "ExtractionZone", "LevelExit", "TruckScreen", "RunManager", "RoundDirector");
+        LogTypeCandidate("Player discovery", ConfigParsing.SplitCsv(Plugin.ModConfig.PlayerTypeCandidates.Value));
+        LogTypeCandidate("Valuable cash-in", ConfigParsing.SplitCsv(Plugin.ModConfig.CashInTypeCandidates.Value));
+        LogTypeCandidate("Extraction", ConfigParsing.SplitCsv(Plugin.ModConfig.ExtractionTypeCandidates.Value));
     }
 
     private static void LogAssembly(Assembly assembly)
@@ -50,6 +50,12 @@ public static class DependencyDiagnostics
 
     private static void LogTypeCandidate(string label, params string[] candidates)
     {
+        if (candidates.Length == 0)
+        {
+            Plugin.Log.LogInfo($"{label} candidate type: no candidates configured.");
+            return;
+        }
+
         var type = PatchReflection.FindTypeByName(candidates);
         if (type == null)
         {
