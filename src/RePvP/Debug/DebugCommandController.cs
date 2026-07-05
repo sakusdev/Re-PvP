@@ -29,6 +29,11 @@ public sealed class DebugCommandController
 
     private void HandleFunctionKeys()
     {
+        if (Input.GetKeyDown(KeyCode.F4))
+        {
+            _roundManager.ExtractNextHeisterForDebug();
+        }
+
         if (Input.GetKeyDown(KeyCode.F5))
         {
             SpawnDebugPlayers();
