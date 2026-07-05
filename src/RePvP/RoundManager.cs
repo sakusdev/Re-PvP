@@ -128,36 +128,34 @@ public sealed class RoundManager
     public bool TryMarkHeisterExtracted(GameObject gameObject)
     {
         var player = FindKnownPlayer(gameObject);
-        if (player == null)
+        return player != null && MarkHeisterExtracted(player);
+    }
+
+    public bool MarkHeisterExtracted(PlayerRef player)
+    {
+        if (Phase != GamePhase.Extraction)
         {
             return false;
         }
 
-        MarkHeisterExtracted(player);
-        return true;
-    }
-
-    public void MarkHeisterExtracted(PlayerRef player)
-    {
-        if (Phase != GamePhase.Extraction)
-        {
-            return;
-        }
-
         if (_roleManager.GetTeam(player) != Team.Heisters)
         {
-            return;
+            return false;
         }
 
-        if (_extractedHeisterIds.Add(player.Id))
+        if (!_extractedHeisterIds.Add(player.Id))
         {
-            Plugin.Log.LogInfo($"Heister extracted: {player.DisplayName} ({_extractedHeisterIds.Count}/{_config.MinimumHeistersToExtract.Value})");
+            return false;
         }
+
+        Plugin.Log.LogInfo($"Heister extracted: {player.DisplayName} ({_extractedHeisterIds.Count}/{_config.MinimumHeistersToExtract.Value})");
 
         if (_extractedHeisterIds.Count >= _config.MinimumHeistersToExtract.Value)
         {
             EndRound(Team.Heisters, "Required Heisters extracted.");
         }
+
+        return true;
     }
 
     private PlayerRef? FindKnownPlayer(GameObject gameObject)
@@ -237,8 +235,9 @@ public sealed class RoundManager
 
     private void TriggerAlarm()
     {
-        if (Phase == GamePhase.Alarm || Phase == GamePhase.Extraction || Phase == GamePhase.RoundEnd)
+        if (Phase != GamePhase.Heist && Phase != GamePhase.Preparation)
         {
+            Plugin.Log.LogInfo($"Alarm trigger ignored during phase: {Phase}");
             return;
         }
 
