@@ -37,10 +37,11 @@ public static class ValuableCashInPatch
             return;
         }
 
-        var postfix = typeof(ValuableCashInPatch).GetMethod(nameof(Postfix), BindingFlags.Static | BindingFlags.NonPublic);
+        var postfixName = method.IsStatic ? nameof(PostfixStatic) : nameof(PostfixInstance);
+        var postfix = typeof(ValuableCashInPatch).GetMethod(postfixName, BindingFlags.Static | BindingFlags.NonPublic);
         if (postfix == null)
         {
-            Plugin.Log.LogWarning("Valuable cash-in patch skipped: postfix method missing.");
+            Plugin.Log.LogWarning($"Valuable cash-in patch skipped: postfix method missing: {postfixName}.");
             return;
         }
 
@@ -48,7 +49,19 @@ public static class ValuableCashInPatch
         Plugin.Log.LogInfo($"Valuable cash-in patch applied: {type.FullName}.{method.Name}");
     }
 
-    private static void Postfix(object? __instance, object[] __args, MethodBase __originalMethod)
+    private static void PostfixInstance(object __instance, object[] __args, MethodBase __originalMethod)
+    {
+        var value = ResolveCashValue(__args, __originalMethod, __instance);
+        NotifyIfValid(value, __instance, __originalMethod);
+    }
+
+    private static void PostfixStatic(object[] __args, MethodBase __originalMethod)
+    {
+        var value = ResolveCashValue(__args, __originalMethod, null);
+        NotifyIfValid(value, __originalMethod, __originalMethod);
+    }
+
+    private static int ResolveCashValue(object[] __args, MethodBase __originalMethod, object? instance)
     {
         var value = PatchReflection.TryReadIntArgument(
             __args,
@@ -60,24 +73,29 @@ public static class ValuableCashInPatch
             "money",
             "totalValue");
 
-        if (value <= 0)
+        if (value > 0)
         {
-            value = PatchReflection.TryReadIntMember(
-                __instance,
-                "cashValue",
-                "value",
-                "price",
-                "amount",
-                "money",
-                "totalValue");
+            return value;
         }
 
+        return PatchReflection.TryReadIntMember(
+            instance,
+            "cashValue",
+            "value",
+            "price",
+            "amount",
+            "money",
+            "totalValue");
+    }
+
+    private static void NotifyIfValid(int value, object source, MethodBase originalMethod)
+    {
         if (value <= 0)
         {
-            Plugin.Log.LogInfo($"Valuable cash-in patch fired but no positive value was found for {__originalMethod.DeclaringType?.FullName}.{__originalMethod.Name}.");
+            Plugin.Log.LogInfo($"Valuable cash-in patch fired but no positive value was found for {originalMethod.DeclaringType?.FullName}.{originalMethod.Name}.");
             return;
         }
 
-        ValuableCashInBridge.OnValuableCashed(value, __instance ?? __originalMethod);
+        ValuableCashInBridge.OnValuableCashed(value, source);
     }
 }
