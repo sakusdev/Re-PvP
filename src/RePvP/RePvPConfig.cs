@@ -6,6 +6,9 @@ public sealed class RePvPConfig
 {
     public ConfigEntry<bool> Enabled { get; }
     public ConfigEntry<bool> DebugKeysEnabled { get; }
+    public ConfigEntry<bool> DebugOverlayEnabled { get; }
+    public ConfigEntry<float> DebugOverlayX { get; }
+    public ConfigEntry<float> DebugOverlayY { get; }
 
     public ConfigEntry<float> PreparationTime { get; }
     public ConfigEntry<float> RoundTimeLimit { get; }
@@ -25,6 +28,9 @@ public sealed class RePvPConfig
     {
         Enabled = config.Bind("General", "Enabled", true, "Enable Re-PvP mode.");
         DebugKeysEnabled = config.Bind("Debug", "DebugKeysEnabled", true, "Enable F6-F10 debug controls.");
+        DebugOverlayEnabled = config.Bind("Debug", "DebugOverlayEnabled", true, "Show the simple IMGUI debug overlay.");
+        DebugOverlayX = config.Bind("Debug", "DebugOverlayX", 20f, "Debug overlay X position.");
+        DebugOverlayY = config.Bind("Debug", "DebugOverlayY", 20f, "Debug overlay Y position.");
 
         PreparationTime = config.Bind("Round", "PreparationTime", 30f, "Seconds before the Hunter becomes active.");
         RoundTimeLimit = config.Bind("Round", "RoundTimeLimit", 720f, "Total round time in seconds.");
