@@ -1,5 +1,6 @@
 using BepInEx;
 using BepInEx.Logging;
+using HarmonyLib;
 using UnityEngine;
 
 namespace RePvP;
@@ -15,16 +16,29 @@ public sealed class Plugin : BaseUnityPlugin
     internal static RePvPConfig ModConfig { get; private set; } = null!;
     internal static RoundManager RoundManager { get; private set; } = null!;
 
+    private Harmony? _harmony;
     private DebugOverlayRenderer _debugOverlay = null!;
 
     private void Awake()
     {
         Log = Logger;
         ModConfig = new RePvPConfig(Config);
-        RoundManager = new RoundManager(ModConfig, new UnityPlayerProvider());
+        RoundManager = new RoundManager(
+            ModConfig,
+            new UnityPlayerProvider(),
+            new UnityLocalPlayerResolver());
         _debugOverlay = new DebugOverlayRenderer(ModConfig);
 
+        _harmony = new Harmony(PluginGuid);
+        PatchBootstrap.ApplyPatches(_harmony);
+
         Logger.LogInfo($"{PluginName} {PluginVersion} loaded.");
+    }
+
+    private void OnDestroy()
+    {
+        _harmony?.UnpatchSelf();
+        _harmony = null;
     }
 
     private void Update()
