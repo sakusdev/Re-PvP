@@ -17,6 +17,16 @@ public sealed class UnityPlayerProvider : IPlayerProvider
 
     public IReadOnlyList<PlayerRef> GetPlayers()
     {
+        var discovered = PlayerDiscoveryPatch.SeenPlayers
+            .Where(go => go != null && go.activeInHierarchy)
+            .Distinct()
+            .ToList();
+
+        if (discovered.Count >= 2)
+        {
+            return ToPlayerRefs(discovered);
+        }
+
         // TODO: Replace this heuristic with R.E.P.O.'s actual player/session API.
         // This intentionally avoids hard dependencies on unknown game classes so the skeleton stays portable.
         var candidates = UnityEngine.Object
@@ -24,13 +34,19 @@ public sealed class UnityPlayerProvider : IPlayerProvider
             .Where(IsLikelyPlayerObject)
             .Distinct()
             .Take(16)
+            .ToList();
+
+        return ToPlayerRefs(candidates);
+    }
+
+    private static IReadOnlyList<PlayerRef> ToPlayerRefs(IReadOnlyList<GameObject> objects)
+    {
+        return objects
             .Select((go, index) => new PlayerRef(
                 id: go.GetInstanceID().ToString(),
                 displayName: string.IsNullOrWhiteSpace(go.name) ? $"Player {index + 1}" : go.name,
                 gameObject: go))
             .ToList();
-
-        return candidates;
     }
 
     private static bool IsLikelyPlayerObject(GameObject gameObject)
