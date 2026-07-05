@@ -119,11 +119,21 @@ config/dev.repvp.example.cfg
 
 ```text
 F6  Start a Re-PvP round
-F7  Add debug cash
+F7  Add configured debug cash
 F8  Force alarm/extraction, only after round has started
 F9  End round as Heister win
 F10 End round as Hunter win
+F11 Log full Re-PvP debug state
+F12 Reset Re-PvP state to WaitingForPlayers
 Q   Hunter Pulse Scan, local Hunter only
+```
+
+Custom cash input:
+
+```text
+Type digits, then press Enter = add that amount as debug cash
+Backspace = edit the buffer
+Escape = clear the buffer
 ```
 
 ## 7. What to check in BepInEx logs
@@ -154,8 +164,11 @@ docs/HOOK_DISCOVERY_REPORT_TEMPLATE.md
 - [ ] F6 starts a round.
 - [ ] A Hunter is selected.
 - [ ] F7 increases cash.
+- [ ] Typing digits + Enter adds a custom cash amount.
 - [ ] Quota triggers Alarm/Extraction.
 - [ ] F8 does not work before round start.
+- [ ] F11 logs complete state.
+- [ ] F12 resets back to WaitingForPlayers.
 - [ ] Q only works if the local player is detected as Hunter.
 
 ## 9. When enabling Harmony patches
