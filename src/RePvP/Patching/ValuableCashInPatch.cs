@@ -7,30 +7,23 @@ public static class ValuableCashInPatch
 {
     public static void TryPatch(Harmony harmony)
     {
-        // TODO: Replace candidates with exact R.E.P.O. class/method names after decompilation.
-        var type = PatchReflection.FindTypeByName(
-            "ValuableObject",
-            "Valuable",
-            "ValuableDirector",
-            "ExtractionPoint",
-            "ShopManager",
-            "StatsManager");
+        var typeCandidates = ConfigParsing.SplitCsv(Plugin.ModConfig.CashInTypeCandidates.Value);
+        var methodCandidates = ConfigParsing.SplitCsv(Plugin.ModConfig.CashInMethodCandidates.Value);
 
+        if (typeCandidates.Length == 0 || methodCandidates.Length == 0)
+        {
+            Plugin.Log.LogInfo("Valuable cash-in patch skipped: no type or method candidates configured.");
+            return;
+        }
+
+        var type = PatchReflection.FindTypeByName(typeCandidates);
         if (type == null)
         {
             Plugin.Log.LogInfo("Valuable cash-in patch skipped: target type not found yet.");
             return;
         }
 
-        var method = PatchReflection.FindMethod(
-            type,
-            "CashIn",
-            "OnCashIn",
-            "Sell",
-            "AddMoney",
-            "AddCash",
-            "ValuableCashed");
-
+        var method = PatchReflection.FindMethod(type, methodCandidates);
         if (method == null)
         {
             Plugin.Log.LogInfo($"Valuable cash-in patch skipped: no candidate method found on {type.FullName}.");
