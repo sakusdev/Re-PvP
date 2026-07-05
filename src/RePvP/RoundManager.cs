@@ -12,6 +12,7 @@ public sealed class RoundManager
     private readonly RoleManager _roleManager = new();
     private readonly HunterAbilityController _hunterAbilityController;
     private readonly HunterStatController _hunterStatController;
+    private readonly RoundEventBus _eventBus;
     private readonly HashSet<string> _extractedHeisterIds = new();
 
     private float _phaseTimer;
@@ -20,10 +21,12 @@ public sealed class RoundManager
     public RoundManager(
         RePvPConfig config,
         IPlayerProvider playerProvider,
-        ILocalPlayerResolver localPlayerResolver)
+        ILocalPlayerResolver localPlayerResolver,
+        RoundEventBus eventBus)
     {
         _config = config;
         _playerProvider = playerProvider;
+        _eventBus = eventBus;
         _hunterAbilityController = new HunterAbilityController(config, _roleManager, localPlayerResolver);
         _hunterStatController = new HunterStatController(config, _roleManager);
     }
@@ -87,6 +90,7 @@ public sealed class RoundManager
         CurrentCash = 0;
         RequiredCash = Math.Max(1, _config.RequiredCashOverride.Value);
         _roundTimer = _config.RoundTimeLimit.Value;
+        _eventBus.RaiseCashChanged(CurrentCash, RequiredCash);
 
         ChangePhase(GamePhase.Preparation, _config.PreparationTime.Value);
         Plugin.Log.LogInfo($"Round started. Required cash: ${RequiredCash:N0}. Round timer: {_roundTimer:0}s.");
@@ -101,6 +105,7 @@ public sealed class RoundManager
 
         CurrentCash = Math.Max(0, CurrentCash + amount);
         Plugin.Log.LogInfo($"Cash updated: ${CurrentCash:N0} / ${RequiredCash:N0}");
+        _eventBus.RaiseCashChanged(CurrentCash, RequiredCash);
 
         if (CurrentCash >= RequiredCash && Phase == GamePhase.Heist)
         {
@@ -154,6 +159,7 @@ public sealed class RoundManager
         RequiredCash = 0;
         _phaseTimer = 0f;
         _roundTimer = 0f;
+        _eventBus.RaiseCashChanged(CurrentCash, RequiredCash);
         ChangePhase(GamePhase.WaitingForPlayers);
     }
 
@@ -217,6 +223,7 @@ public sealed class RoundManager
         }
 
         Plugin.Log.LogInfo($"Heister extracted: {player.DisplayName} ({_extractedHeisterIds.Count}/{_config.MinimumHeistersToExtract.Value})");
+        _eventBus.RaiseHeisterExtracted(player, _extractedHeisterIds.Count, _config.MinimumHeistersToExtract.Value);
 
         if (_extractedHeisterIds.Count >= _config.MinimumHeistersToExtract.Value)
         {
@@ -324,6 +331,7 @@ public sealed class RoundManager
         var winnerName = winner == Team.Heisters ? "HEISTERS" : "HUNTER";
         Plugin.Log.LogWarning($"ROUND END: {winnerName} WIN. Reason: {reason}");
         Plugin.Log.LogInfo($"Final cash: ${CurrentCash:N0} / ${RequiredCash:N0}. Extracted: {_extractedHeisterIds.Count}.");
+        _eventBus.RaiseRoundEnded(winner, reason);
 
         _hunterStatController.ResetHunterStats();
         _roleManager.Clear();
@@ -332,8 +340,10 @@ public sealed class RoundManager
 
     private void ChangePhase(GamePhase phase, float phaseTimer = 0f)
     {
+        var previous = Phase;
         Phase = phase;
         _phaseTimer = phaseTimer;
         Plugin.Log.LogInfo($"Phase changed: {Phase} ({_phaseTimer:0.0}s)");
+        _eventBus.RaisePhaseChanged(previous, Phase);
     }
 }
