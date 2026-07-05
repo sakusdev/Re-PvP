@@ -15,11 +15,14 @@ public sealed class Plugin : BaseUnityPlugin
     internal static RePvPConfig ModConfig { get; private set; } = null!;
     internal static RoundManager RoundManager { get; private set; } = null!;
 
+    private DebugOverlayRenderer _debugOverlay = null!;
+
     private void Awake()
     {
         Log = Logger;
         ModConfig = new RePvPConfig(Config);
         RoundManager = new RoundManager(ModConfig, new UnityPlayerProvider());
+        _debugOverlay = new DebugOverlayRenderer(ModConfig);
 
         Logger.LogInfo($"{PluginName} {PluginVersion} loaded.");
     }
@@ -33,6 +36,16 @@ public sealed class Plugin : BaseUnityPlugin
 
         RoundManager.Tick(Time.deltaTime);
         HandleDebugKeys();
+    }
+
+    private void OnGUI()
+    {
+        if (!ModConfig.Enabled.Value)
+        {
+            return;
+        }
+
+        _debugOverlay.OnGui(RoundManager.GetSnapshot());
     }
 
     private void HandleDebugKeys()
