@@ -8,29 +8,23 @@ public static class ExtractionPatch
 {
     public static void TryPatch(Harmony harmony)
     {
-        // TODO: Replace candidates with exact R.E.P.O. extraction/exit class and method names.
-        var type = PatchReflection.FindTypeByName(
-            "ExtractionPoint",
-            "ExtractionZone",
-            "LevelExit",
-            "TruckScreen",
-            "RunManager",
-            "RoundDirector");
+        var typeCandidates = ConfigParsing.SplitCsv(Plugin.ModConfig.ExtractionTypeCandidates.Value);
+        var methodCandidates = ConfigParsing.SplitCsv(Plugin.ModConfig.ExtractionMethodCandidates.Value);
 
+        if (typeCandidates.Length == 0 || methodCandidates.Length == 0)
+        {
+            Plugin.Log.LogInfo("Extraction patch skipped: no type or method candidates configured.");
+            return;
+        }
+
+        var type = PatchReflection.FindTypeByName(typeCandidates);
         if (type == null)
         {
             Plugin.Log.LogInfo("Extraction patch skipped: target type not found yet.");
             return;
         }
 
-        var method = PatchReflection.FindMethod(
-            type,
-            "ExtractPlayer",
-            "OnPlayerEnter",
-            "OnTriggerEnter",
-            "PlayerExtracted",
-            "LeaveLevel");
-
+        var method = PatchReflection.FindMethod(type, methodCandidates);
         if (method == null)
         {
             Plugin.Log.LogInfo($"Extraction patch skipped: no candidate method found on {type.FullName}.");
