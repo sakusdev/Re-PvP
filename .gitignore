@@ -1,0 +1,58 @@
+# Build outputs
+bin/
+obj/
+Build/
+Builds/
+Dist/
+dist/
+out/
+
+# BepInEx / Unity mod local files
+BepInEx/core/
+BepInEx/cache/
+BepInEx/patchers/
+BepInEx/plugins/
+BepInEx/config/
+BepInEx/LogOutput.log
+winhttp.dll
+doorstop_config.ini
+
+# Unity / game local data
+*.log
+*.stackdump
+*.dmp
+*.tmp
+*.temp
+
+# IDE files
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+*.DotSettings.user
+
+# NuGet
+*.nupkg
+packages/
+.nuget/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Secrets / local config
+.env
+.env.*
+*.local.json
+*.secret.json
+
+# Archives
+*.zip
+*.7z
+*.rar
