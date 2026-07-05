@@ -32,12 +32,36 @@ The exact folder name may differ depending on the game build and platform.
 
 Do not commit these DLLs.
 
-## 2. Build
+## 2. Check references
+
+Windows PowerShell:
+
+```powershell
+./scripts/check-refs.ps1
+```
+
+Linux/macOS shell:
+
+```bash
+bash ./scripts/check-refs.sh
+```
+
+## 3. Build
 
 From the repository root:
 
 ```bash
 dotnet build RePvP.sln -c Release
+```
+
+Or use the helper scripts:
+
+```powershell
+./scripts/build.ps1
+```
+
+```bash
+bash ./scripts/build.sh
 ```
 
 Output should appear under:
@@ -60,7 +84,7 @@ net472
 net46
 ```
 
-## 3. Install the plugin
+## 4. Install the plugin
 
 Copy the built DLL to:
 
@@ -74,7 +98,7 @@ Launch the game once. BepInEx should generate:
 BepInEx/config/dev.sakus.repvp.cfg
 ```
 
-## 4. Early safe config
+## 5. Early safe config
 
 For first launch, keep tentative Harmony patches disabled:
 
@@ -91,7 +115,7 @@ An example config is available at:
 config/dev.repvp.example.cfg
 ```
 
-## 5. Debug controls
+## 6. Debug controls
 
 ```text
 F6  Start a Re-PvP round
@@ -102,7 +126,7 @@ F10 End round as Hunter win
 Q   Hunter Pulse Scan, local Hunter only
 ```
 
-## 6. What to check in BepInEx logs
+## 7. What to check in BepInEx logs
 
 Look for:
 
@@ -117,7 +141,13 @@ Harmony patches are disabled by config.
 
 If `LogStartupDiagnostics=true`, the plugin will also print whether tentative hook candidate types were found.
 
-## 7. First test checklist
+Use this template to record findings:
+
+```text
+docs/HOOK_DISCOVERY_REPORT_TEMPLATE.md
+```
+
+## 8. First test checklist
 
 - [ ] Game launches without BepInEx errors.
 - [ ] Re-PvP debug overlay appears.
@@ -128,7 +158,7 @@ If `LogStartupDiagnostics=true`, the plugin will also print whether tentative ho
 - [ ] F8 does not work before round start.
 - [ ] Q only works if the local player is detected as Hunter.
 
-## 8. When enabling Harmony patches
+## 9. When enabling Harmony patches
 
 Only set this after the real R.E.P.O. class/method names are verified:
 
