@@ -20,7 +20,7 @@ public sealed class DebugOverlayRenderer
 
         var x = _config.DebugOverlayX.Value;
         var y = _config.DebugOverlayY.Value;
-        const int width = 460;
+        const int width = 480;
         const int height = 210;
 
         GUI.Box(new Rect(x, y, width, height), "Re-PvP: Heist & Hunter");
@@ -32,14 +32,14 @@ public sealed class DebugOverlayRenderer
         DrawLine(x, ref line, $"Phase Time: {FormatTime(snapshot.PhaseTimeRemaining)}");
         DrawLine(x, ref line, $"Hunter: {snapshot.HunterName ?? "None"}");
         DrawLine(x, ref line, $"Extracted: {snapshot.ExtractedCount}/{snapshot.HeisterCount}");
-        DrawLine(x, ref line, "F5 Debug Players / F6 Start / F7 Cash / F8 Extract");
-        DrawLine(x, ref line, "F11 Log / F12 Reset / Ctrl+F12 Clear Debug Players");
-        DrawLine(x, ref line, "Type digits + Enter = add custom cash / Q = Pulse");
+        DrawLine(x, ref line, "F4 Extract Heister / F5 Debug Players / F6 Start");
+        DrawLine(x, ref line, "F7 Cash / F8 Extract Phase / F11 Log / F12 Reset");
+        DrawLine(x, ref line, "Ctrl+F12 Clear Debug Players / digits+Enter Cash / Q Pulse");
     }
 
     private static void DrawLine(float x, ref float y, string text)
     {
-        GUI.Label(new Rect(x + 12, y, 440, 20), text);
+        GUI.Label(new Rect(x + 12, y, 460, 20), text);
         y += 19;
     }
 
