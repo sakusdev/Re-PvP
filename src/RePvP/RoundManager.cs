@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace RePvP;
 
@@ -27,6 +28,19 @@ public sealed class RoundManager
     public GamePhase Phase { get; private set; } = GamePhase.WaitingForPlayers;
     public int CurrentCash { get; private set; }
     public int RequiredCash { get; private set; }
+
+    public RoundSnapshot GetSnapshot()
+    {
+        return new RoundSnapshot(
+            Phase,
+            CurrentCash,
+            RequiredCash,
+            _phaseTimer,
+            _roundTimer,
+            _roleManager.Heisters.Count,
+            _extractedHeisterIds.Count,
+            _roleManager.Hunter?.DisplayName);
+    }
 
     public void Tick(float deltaTime)
     {
@@ -108,6 +122,18 @@ public sealed class RoundManager
         EndRound(winner, "Debug forced round end.");
     }
 
+    public bool TryMarkHeisterExtracted(GameObject gameObject)
+    {
+        var player = FindKnownPlayer(gameObject);
+        if (player == null)
+        {
+            return false;
+        }
+
+        MarkHeisterExtracted(player);
+        return true;
+    }
+
     public void MarkHeisterExtracted(PlayerRef player)
     {
         if (Phase != GamePhase.Extraction)
@@ -129,6 +155,27 @@ public sealed class RoundManager
         {
             EndRound(Team.Heisters, "Required Heisters extracted.");
         }
+    }
+
+    private PlayerRef? FindKnownPlayer(GameObject gameObject)
+    {
+        if (gameObject == null)
+        {
+            return null;
+        }
+
+        var allPlayers = _roleManager.Heisters
+            .Concat(_roleManager.Hunter != null ? new[] { _roleManager.Hunter } : Array.Empty<PlayerRef>());
+
+        foreach (var player in allPlayers)
+        {
+            if (player.GameObject == gameObject || gameObject.transform.IsChildOf(player.GameObject.transform))
+            {
+                return player;
+            }
+        }
+
+        return null;
     }
 
     private void TickPreparation(float deltaTime)
