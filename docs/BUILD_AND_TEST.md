@@ -1,0 +1,139 @@
+# Build and Local Test Guide
+
+This project is still an early BepInEx mod skeleton. It requires local DLL references from your installed R.E.P.O. / BepInEx environment.
+
+## 1. Copy local DLL references
+
+Copy these files into:
+
+```text
+src/RePvP/lib/
+```
+
+Required:
+
+```text
+BepInEx.dll
+0Harmony.dll
+UnityEngine.dll
+UnityEngine.CoreModule.dll
+```
+
+Likely locations:
+
+```text
+<R.E.P.O. install>/BepInEx/core/BepInEx.dll
+<R.E.P.O. install>/BepInEx/core/0Harmony.dll
+<R.E.P.O. install>/REPO_Data/Managed/UnityEngine.dll
+<R.E.P.O. install>/REPO_Data/Managed/UnityEngine.CoreModule.dll
+```
+
+The exact folder name may differ depending on the game build and platform.
+
+Do not commit these DLLs.
+
+## 2. Build
+
+From the repository root:
+
+```bash
+dotnet build RePvP.sln -c Release
+```
+
+Output should appear under:
+
+```text
+src/RePvP/bin/Release/netstandard2.1/RePvP.dll
+```
+
+If `netstandard2.1` is not compatible with the local game/BepInEx environment, update `TargetFramework` in:
+
+```text
+src/RePvP/RePvP.csproj
+```
+
+Possible alternatives to test:
+
+```text
+netstandard2.0
+net472
+net46
+```
+
+## 3. Install the plugin
+
+Copy the built DLL to:
+
+```text
+<R.E.P.O. install>/BepInEx/plugins/RePvP.dll
+```
+
+Launch the game once. BepInEx should generate:
+
+```text
+BepInEx/config/dev.sakus.repvp.cfg
+```
+
+## 4. Early safe config
+
+For first launch, keep tentative Harmony patches disabled:
+
+```ini
+[General]
+Enabled = true
+EnableHarmonyPatches = false
+LogStartupDiagnostics = true
+```
+
+An example config is available at:
+
+```text
+config/dev.repvp.example.cfg
+```
+
+## 5. Debug controls
+
+```text
+F6  Start a Re-PvP round
+F7  Add debug cash
+F8  Force alarm/extraction, only after round has started
+F9  End round as Heister win
+F10 End round as Hunter win
+Q   Hunter Pulse Scan, local Hunter only
+```
+
+## 6. What to check in BepInEx logs
+
+Look for:
+
+```text
+Re-PvP 0.1.0 loaded.
+Dependency diagnostics start.
+Assembly loaded: BepInEx ...
+Assembly loaded: 0Harmony ...
+Assembly loaded: UnityEngine ...
+Harmony patches are disabled by config.
+```
+
+If `LogStartupDiagnostics=true`, the plugin will also print whether tentative hook candidate types were found.
+
+## 7. First test checklist
+
+- [ ] Game launches without BepInEx errors.
+- [ ] Re-PvP debug overlay appears.
+- [ ] F6 starts a round.
+- [ ] A Hunter is selected.
+- [ ] F7 increases cash.
+- [ ] Quota triggers Alarm/Extraction.
+- [ ] F8 does not work before round start.
+- [ ] Q only works if the local player is detected as Hunter.
+
+## 8. When enabling Harmony patches
+
+Only set this after the real R.E.P.O. class/method names are verified:
+
+```ini
+EnableHarmonyPatches = true
+```
+
+Current patches are still tentative and may not target the correct game methods.
