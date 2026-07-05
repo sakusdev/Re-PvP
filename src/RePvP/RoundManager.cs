@@ -125,6 +125,33 @@ public sealed class RoundManager
         EndRound(winner, "Debug forced round end.");
     }
 
+    public void ResetToWaitingForDebug()
+    {
+        Plugin.Log.LogWarning("Debug: resetting Re-PvP round state to WaitingForPlayers.");
+        _hunterStatController.ResetHunterStats();
+        _roleManager.Clear();
+        _extractedHeisterIds.Clear();
+        CurrentCash = 0;
+        RequiredCash = 0;
+        _phaseTimer = 0f;
+        _roundTimer = 0f;
+        ChangePhase(GamePhase.WaitingForPlayers);
+    }
+
+    public void LogDebugState()
+    {
+        var snapshot = GetSnapshot();
+        Plugin.Log.LogInfo("=== Re-PvP Debug State ===");
+        Plugin.Log.LogInfo($"Phase: {snapshot.Phase}");
+        Plugin.Log.LogInfo($"Cash: ${snapshot.CurrentCash:N0} / ${snapshot.RequiredCash:N0} ({snapshot.CashProgress:P0})");
+        Plugin.Log.LogInfo($"PhaseTimeRemaining: {snapshot.PhaseTimeRemaining:0.0}s");
+        Plugin.Log.LogInfo($"RoundTimeRemaining: {snapshot.RoundTimeRemaining:0.0}s");
+        Plugin.Log.LogInfo($"Hunter: {snapshot.HunterName ?? "None"}");
+        Plugin.Log.LogInfo($"Heisters: {snapshot.HeisterCount}");
+        Plugin.Log.LogInfo($"Extracted: {snapshot.ExtractedCount}");
+        Plugin.Log.LogInfo("==========================");
+    }
+
     public bool TryMarkHeisterExtracted(GameObject gameObject)
     {
         var player = FindKnownPlayer(gameObject);
