@@ -18,6 +18,7 @@ public sealed class Plugin : BaseUnityPlugin
 
     private Harmony? _harmony;
     private DebugOverlayRenderer _debugOverlay = null!;
+    private DebugCommandController _debugCommandController = null!;
 
     private void Awake()
     {
@@ -28,6 +29,7 @@ public sealed class Plugin : BaseUnityPlugin
             new UnityPlayerProvider(),
             new UnityLocalPlayerResolver());
         _debugOverlay = new DebugOverlayRenderer(ModConfig);
+        _debugCommandController = new DebugCommandController(ModConfig, RoundManager);
 
         if (ModConfig.LogStartupDiagnostics.Value)
         {
@@ -55,7 +57,7 @@ public sealed class Plugin : BaseUnityPlugin
         }
 
         RoundManager.Tick(Time.deltaTime);
-        HandleDebugKeys();
+        _debugCommandController.Tick();
     }
 
     private void OnGUI()
@@ -66,38 +68,5 @@ public sealed class Plugin : BaseUnityPlugin
         }
 
         _debugOverlay.OnGui(RoundManager.GetSnapshot());
-    }
-
-    private void HandleDebugKeys()
-    {
-        if (!ModConfig.DebugKeysEnabled.Value)
-        {
-            return;
-        }
-
-        if (Input.GetKeyDown(KeyCode.F6))
-        {
-            RoundManager.ForceStartRound();
-        }
-
-        if (Input.GetKeyDown(KeyCode.F7))
-        {
-            RoundManager.AddCashForDebug(ModConfig.DebugCashAmount.Value);
-        }
-
-        if (Input.GetKeyDown(KeyCode.F8))
-        {
-            RoundManager.TriggerExtractionForDebug();
-        }
-
-        if (Input.GetKeyDown(KeyCode.F9))
-        {
-            RoundManager.EndRoundForDebug(Team.Heisters);
-        }
-
-        if (Input.GetKeyDown(KeyCode.F10))
-        {
-            RoundManager.EndRoundForDebug(Team.Hunter);
-        }
     }
 }
