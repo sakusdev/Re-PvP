@@ -38,14 +38,21 @@ public static class ValuableCashInPatch
         }
 
         var postfix = typeof(ValuableCashInPatch).GetMethod(nameof(Postfix), BindingFlags.Static | BindingFlags.NonPublic);
+        if (postfix == null)
+        {
+            Plugin.Log.LogWarning("Valuable cash-in patch skipped: postfix method missing.");
+            return;
+        }
+
         harmony.Patch(method, postfix: new HarmonyMethod(postfix));
         Plugin.Log.LogInfo($"Valuable cash-in patch applied: {type.FullName}.{method.Name}");
     }
 
-    private static void Postfix(object __instance)
+    private static void Postfix(object? __instance, object[] __args, MethodBase __originalMethod)
     {
-        var value = PatchReflection.TryReadIntMember(
-            __instance,
+        var value = PatchReflection.TryReadIntArgument(
+            __args,
+            __originalMethod,
             "cashValue",
             "value",
             "price",
@@ -55,10 +62,22 @@ public static class ValuableCashInPatch
 
         if (value <= 0)
         {
-            Plugin.Log.LogInfo($"Valuable cash-in patch fired but no value field was found on {__instance.GetType().FullName}.");
+            value = PatchReflection.TryReadIntMember(
+                __instance,
+                "cashValue",
+                "value",
+                "price",
+                "amount",
+                "money",
+                "totalValue");
+        }
+
+        if (value <= 0)
+        {
+            Plugin.Log.LogInfo($"Valuable cash-in patch fired but no positive value was found for {__originalMethod.DeclaringType?.FullName}.{__originalMethod.Name}.");
             return;
         }
 
-        ValuableCashInBridge.OnValuableCashed(value, __instance);
+        ValuableCashInBridge.OnValuableCashed(value, __instance ?? __originalMethod);
     }
 }
