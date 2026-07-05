@@ -22,6 +22,7 @@ public sealed class Plugin : BaseUnityPlugin
     private RoundEventBus _roundEventBus = null!;
     private MessageFeed _messageFeed = null!;
     private RoundMessagePresenter _roundMessagePresenter = null!;
+    private RoundStateBroadcaster? _roundStateBroadcaster;
 
     private void Awake()
     {
@@ -30,6 +31,11 @@ public sealed class Plugin : BaseUnityPlugin
         _roundEventBus = new RoundEventBus();
         _messageFeed = new MessageFeed();
         _roundMessagePresenter = new RoundMessagePresenter(_roundEventBus, _messageFeed);
+
+        if (ModConfig.EnableNetworkBroadcastPlaceholder.Value)
+        {
+            _roundStateBroadcaster = new RoundStateBroadcaster(_roundEventBus);
+        }
 
         RoundManager = new RoundManager(
             ModConfig,
@@ -53,6 +59,7 @@ public sealed class Plugin : BaseUnityPlugin
 
     private void OnDestroy()
     {
+        _roundStateBroadcaster?.Dispose();
         _roundMessagePresenter?.Dispose();
         _messageFeed?.Clear();
         _harmony?.UnpatchSelf();
