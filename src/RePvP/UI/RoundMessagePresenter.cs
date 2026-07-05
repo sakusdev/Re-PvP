@@ -1,16 +1,35 @@
+using System;
+
 namespace RePvP;
 
-public sealed class RoundMessagePresenter
+public sealed class RoundMessagePresenter : IDisposable
 {
+    private readonly RoundEventBus _eventBus;
     private readonly MessageFeed _messages;
+    private bool _disposed;
 
     public RoundMessagePresenter(RoundEventBus eventBus, MessageFeed messages)
     {
+        _eventBus = eventBus;
         _messages = messages;
-        eventBus.PhaseChanged += OnPhaseChanged;
-        eventBus.CashChanged += OnCashChanged;
-        eventBus.HeisterExtracted += OnHeisterExtracted;
-        eventBus.RoundEnded += OnRoundEnded;
+        _eventBus.PhaseChanged += OnPhaseChanged;
+        _eventBus.CashChanged += OnCashChanged;
+        _eventBus.HeisterExtracted += OnHeisterExtracted;
+        _eventBus.RoundEnded += OnRoundEnded;
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _eventBus.PhaseChanged -= OnPhaseChanged;
+        _eventBus.CashChanged -= OnCashChanged;
+        _eventBus.HeisterExtracted -= OnHeisterExtracted;
+        _eventBus.RoundEnded -= OnRoundEnded;
+        _disposed = true;
     }
 
     private void OnPhaseChanged(GamePhase previous, GamePhase next)
@@ -37,6 +56,11 @@ public sealed class RoundMessagePresenter
 
     private void OnCashChanged(int currentCash, int requiredCash)
     {
+        if (requiredCash <= 0)
+        {
+            return;
+        }
+
         _messages.Push($"Cash: ${currentCash:N0} / ${requiredCash:N0}", 2.5f);
     }
 
