@@ -118,6 +118,7 @@ config/dev.repvp.example.cfg
 ## 6. Debug controls
 
 ```text
+F5  Spawn 4 debug player capsules
 F6  Start a Re-PvP round
 F7  Add configured debug cash
 F8  Force alarm/extraction, only after round has started
@@ -125,6 +126,7 @@ F9  End round as Heister win
 F10 End round as Hunter win
 F11 Log full Re-PvP debug state
 F12 Reset Re-PvP state to WaitingForPlayers
+Ctrl+F12 Clear debug players and reset state
 Q   Hunter Pulse Scan, local Hunter only
 ```
 
@@ -134,6 +136,16 @@ Custom cash input:
 Type digits, then press Enter = add that amount as debug cash
 Backspace = edit the buffer
 Escape = clear the buffer
+```
+
+Debug player flow:
+
+```text
+F5 -> spawn debug players
+F6 -> start round using those debug players
+F7 or custom cash -> reach quota
+F8 or quota -> start extraction flow
+Ctrl+F12 -> clear debug players
 ```
 
 ## 7. What to check in BepInEx logs
@@ -161,7 +173,8 @@ docs/HOOK_DISCOVERY_REPORT_TEMPLATE.md
 
 - [ ] Game launches without BepInEx errors.
 - [ ] Re-PvP debug overlay appears.
-- [ ] F6 starts a round.
+- [ ] F5 spawns 4 debug player capsules.
+- [ ] F6 starts a round using debug players.
 - [ ] A Hunter is selected.
 - [ ] F7 increases cash.
 - [ ] Typing digits + Enter adds a custom cash amount.
@@ -169,6 +182,7 @@ docs/HOOK_DISCOVERY_REPORT_TEMPLATE.md
 - [ ] F8 does not work before round start.
 - [ ] F11 logs complete state.
 - [ ] F12 resets back to WaitingForPlayers.
+- [ ] Ctrl+F12 clears debug players.
 - [ ] Q only works if the local player is detected as Hunter.
 
 ## 9. When enabling Harmony patches
