@@ -53,7 +53,7 @@ public static class PatchReflection
         return null;
     }
 
-    public static int TryReadIntMember(object instance, params string[] memberNameCandidates)
+    public static int TryReadIntMember(object? instance, params string[] memberNameCandidates)
     {
         if (instance == null)
         {
@@ -75,6 +75,42 @@ public static class PatchReflection
             if (property != null && TryConvertToInt(property.GetValue(instance), out var propertyValue))
             {
                 return propertyValue;
+            }
+        }
+
+        return 0;
+    }
+
+    public static int TryReadIntArgument(object[]? args, MethodBase? originalMethod, params string[] argumentNameCandidates)
+    {
+        if (args == null || args.Length == 0)
+        {
+            return 0;
+        }
+
+        var parameters = originalMethod?.GetParameters() ?? Array.Empty<ParameterInfo>();
+        for (var i = 0; i < args.Length; i++)
+        {
+            if (i < parameters.Length && argumentNameCandidates.Any(name => string.Equals(parameters[i].Name, name, StringComparison.OrdinalIgnoreCase)))
+            {
+                if (TryConvertToInt(args[i], out var namedValue))
+                {
+                    return namedValue;
+                }
+            }
+        }
+
+        foreach (var arg in args)
+        {
+            if (TryConvertToInt(arg, out var directValue))
+            {
+                return directValue;
+            }
+
+            var memberValue = TryReadIntMember(arg, argumentNameCandidates);
+            if (memberValue > 0)
+            {
+                return memberValue;
             }
         }
 
