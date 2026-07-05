@@ -53,6 +53,7 @@ public sealed class Plugin : BaseUnityPlugin
 
     private void OnDestroy()
     {
+        _roundMessagePresenter?.Dispose();
         _messageFeed?.Clear();
         _harmony?.UnpatchSelf();
         _harmony = null;
