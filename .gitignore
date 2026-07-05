@@ -7,6 +7,12 @@ Dist/
 dist/
 out/
 
+# Local reference DLLs
+src/**/lib/*.dll
+src/**/lib/*.xml
+src/**/lib/*.pdb
+!src/**/lib/README.md
+
 # BepInEx / Unity mod local files
 BepInEx/core/
 BepInEx/cache/
