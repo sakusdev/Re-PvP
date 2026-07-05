@@ -118,13 +118,14 @@ config/dev.repvp.example.cfg
 ## 6. Debug controls
 
 ```text
+F4  Mark the next active Heister as extracted, extraction phase only
 F5  Spawn 4 debug player capsules
 F6  Start a Re-PvP round
 F7  Add configured debug cash
 F8  Force alarm/extraction, only after round has started
 F9  End round as Heister win
 F10 End round as Hunter win
-F11 Log full Re-PvP debug state
+F11 Log full Re-PvP debug state and team details
 F12 Reset Re-PvP state to WaitingForPlayers
 Ctrl+F12 Clear debug players and reset state
 Q   Hunter Pulse Scan, local Hunter only
@@ -145,6 +146,7 @@ F5 -> spawn debug players
 F6 -> start round using those debug players
 F7 or custom cash -> reach quota
 F8 or quota -> start extraction flow
+F4 -> extract one active Heister
 Ctrl+F12 -> clear debug players
 ```
 
@@ -180,7 +182,9 @@ docs/HOOK_DISCOVERY_REPORT_TEMPLATE.md
 - [ ] Typing digits + Enter adds a custom cash amount.
 - [ ] Quota triggers Alarm/Extraction.
 - [ ] F8 does not work before round start.
-- [ ] F11 logs complete state.
+- [ ] F4 extracts one active Heister during Extraction.
+- [ ] Required extraction count ends the round as Heister win.
+- [ ] F11 logs complete state and team details.
 - [ ] F12 resets back to WaitingForPlayers.
 - [ ] Ctrl+F12 clears debug players.
 - [ ] Q only works if the local player is detected as Hunter.
