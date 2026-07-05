@@ -5,6 +5,7 @@ namespace RePvP;
 public sealed class RePvPConfig
 {
     public ConfigEntry<bool> Enabled { get; }
+    public ConfigEntry<bool> EnableHarmonyPatches { get; }
     public ConfigEntry<bool> DebugKeysEnabled { get; }
     public ConfigEntry<bool> DebugOverlayEnabled { get; }
     public ConfigEntry<float> DebugOverlayX { get; }
@@ -27,6 +28,7 @@ public sealed class RePvPConfig
     public RePvPConfig(ConfigFile config)
     {
         Enabled = config.Bind("General", "Enabled", true, "Enable Re-PvP mode.");
+        EnableHarmonyPatches = config.Bind("General", "EnableHarmonyPatches", true, "Enable tentative Harmony patches for R.E.P.O. integration.");
         DebugKeysEnabled = config.Bind("Debug", "DebugKeysEnabled", true, "Enable F6-F10 debug controls.");
         DebugOverlayEnabled = config.Bind("Debug", "DebugOverlayEnabled", true, "Show the simple IMGUI debug overlay.");
         DebugOverlayX = config.Bind("Debug", "DebugOverlayX", 20f, "Debug overlay X position.");
