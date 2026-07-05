@@ -29,6 +29,12 @@ public sealed class Plugin : BaseUnityPlugin
             new UnityLocalPlayerResolver());
         _debugOverlay = new DebugOverlayRenderer(ModConfig);
 
+        if (ModConfig.LogStartupDiagnostics.Value)
+        {
+            DependencyDiagnostics.LogLoadedAssemblies();
+            DependencyDiagnostics.LogPatchTargetCandidates();
+        }
+
         _harmony = new Harmony(PluginGuid);
         PatchBootstrap.ApplyPatches(_harmony);
 
