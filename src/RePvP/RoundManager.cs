@@ -10,6 +10,7 @@ public sealed class RoundManager
     private readonly IPlayerProvider _playerProvider;
     private readonly RoleManager _roleManager = new();
     private readonly HunterAbilityController _hunterAbilityController;
+    private readonly HunterStatController _hunterStatController;
     private readonly HashSet<string> _extractedHeisterIds = new();
 
     private float _phaseTimer;
@@ -20,6 +21,7 @@ public sealed class RoundManager
         _config = config;
         _playerProvider = playerProvider;
         _hunterAbilityController = new HunterAbilityController(config, _roleManager);
+        _hunterStatController = new HunterStatController(config, _roleManager);
     }
 
     public GamePhase Phase { get; private set; } = GamePhase.WaitingForPlayers;
@@ -63,6 +65,7 @@ public sealed class RoundManager
         }
 
         _roleManager.AssignTeams(players);
+        _hunterStatController.ApplyHunterStats();
         _extractedHeisterIds.Clear();
         CurrentCash = 0;
         RequiredCash = Math.Max(1, _config.RequiredCashOverride.Value);
@@ -205,6 +208,7 @@ public sealed class RoundManager
         Plugin.Log.LogWarning($"ROUND END: {winnerName} WIN. Reason: {reason}");
         Plugin.Log.LogInfo($"Final cash: ${CurrentCash:N0} / ${RequiredCash:N0}. Extracted: {_extractedHeisterIds.Count}.");
 
+        _hunterStatController.ResetHunterStats();
         _roleManager.Clear();
         _extractedHeisterIds.Clear();
     }
