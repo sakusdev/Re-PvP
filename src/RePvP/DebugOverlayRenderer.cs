@@ -5,10 +5,12 @@ namespace RePvP;
 public sealed class DebugOverlayRenderer
 {
     private readonly RePvPConfig _config;
+    private readonly MessageFeed _messageFeed;
 
-    public DebugOverlayRenderer(RePvPConfig config)
+    public DebugOverlayRenderer(RePvPConfig config, MessageFeed messageFeed)
     {
         _config = config;
+        _messageFeed = messageFeed;
     }
 
     public void OnGui(RoundSnapshot snapshot)
@@ -20,8 +22,8 @@ public sealed class DebugOverlayRenderer
 
         var x = _config.DebugOverlayX.Value;
         var y = _config.DebugOverlayY.Value;
-        const int width = 480;
-        const int height = 210;
+        const int width = 500;
+        const int height = 260;
 
         GUI.Box(new Rect(x, y, width, height), "Re-PvP: Heist & Hunter");
 
@@ -35,11 +37,16 @@ public sealed class DebugOverlayRenderer
         DrawLine(x, ref line, "F4 Extract Heister / F5 Debug Players / F6 Start");
         DrawLine(x, ref line, "F7 Cash / F8 Extract Phase / F11 Log / F12 Reset");
         DrawLine(x, ref line, "Ctrl+F12 Clear Debug Players / digits+Enter Cash / Q Pulse");
+
+        foreach (var message in _messageFeed.GetVisibleMessages())
+        {
+            DrawLine(x, ref line, $"> {message}");
+        }
     }
 
     private static void DrawLine(float x, ref float y, string text)
     {
-        GUI.Label(new Rect(x + 12, y, 460, 20), text);
+        GUI.Label(new Rect(x + 12, y, 480, 20), text);
         y += 19;
     }
 
