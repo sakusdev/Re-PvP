@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <AssemblyName>RePvP</AssemblyName>
+    <RootNamespace>RePvP</RootNamespace>
+    <Version>0.1.0</Version>
+    <Description>Experimental asymmetric PvP mode for R.E.P.O.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      Local references are intentionally path-based for game mod development.
+      Copy these DLLs from your BepInEx/R.E.P.O. install or adjust HintPath locally.
+      These files should not be committed.
+    -->
+    <Reference Include="BepInEx">
+      <HintPath>lib/BepInEx.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>lib/UnityEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>lib/UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>
