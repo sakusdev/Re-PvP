@@ -23,6 +23,13 @@ public sealed class RePvPConfig
     public ConfigEntry<float> PulseScanCooldown { get; }
     public ConfigEntry<float> PulseScanRange { get; }
 
+    public ConfigEntry<string> PlayerTypeCandidates { get; }
+    public ConfigEntry<string> PlayerMethodCandidates { get; }
+    public ConfigEntry<string> CashInTypeCandidates { get; }
+    public ConfigEntry<string> CashInMethodCandidates { get; }
+    public ConfigEntry<string> ExtractionTypeCandidates { get; }
+    public ConfigEntry<string> ExtractionMethodCandidates { get; }
+
     public ConfigEntry<int> MinimumHeistersToExtract { get; }
     public ConfigEntry<int> DebugCashAmount { get; }
 
@@ -46,6 +53,13 @@ public sealed class RePvPConfig
         PulseScanDuration = config.Bind("Hunter", "PulseScanDuration", 4f, "Hunter Pulse Scan reveal duration.");
         PulseScanCooldown = config.Bind("Hunter", "PulseScanCooldown", 45f, "Hunter Pulse Scan cooldown.");
         PulseScanRange = config.Bind("Hunter", "PulseScanRange", 40f, "Hunter Pulse Scan range in Unity units.");
+
+        PlayerTypeCandidates = config.Bind("Hooks", "PlayerTypeCandidates", "PlayerAvatar,PlayerController,PlayerManager,SemiFunc,NetworkPlayer", "Comma-separated player/session type candidates for tentative Harmony discovery.");
+        PlayerMethodCandidates = config.Bind("Hooks", "PlayerMethodCandidates", "Start,Awake,OnEnable,Spawn,SpawnPlayer", "Comma-separated player discovery method candidates.");
+        CashInTypeCandidates = config.Bind("Hooks", "CashInTypeCandidates", "ValuableObject,Valuable,ValuableDirector,ExtractionPoint,ShopManager,StatsManager", "Comma-separated cash-in type candidates.");
+        CashInMethodCandidates = config.Bind("Hooks", "CashInMethodCandidates", "CashIn,OnCashIn,Sell,AddMoney,AddCash,ValuableCashed", "Comma-separated cash-in method candidates.");
+        ExtractionTypeCandidates = config.Bind("Hooks", "ExtractionTypeCandidates", "ExtractionPoint,ExtractionZone,LevelExit,TruckScreen,RunManager,RoundDirector", "Comma-separated extraction type candidates.");
+        ExtractionMethodCandidates = config.Bind("Hooks", "ExtractionMethodCandidates", "ExtractPlayer,OnPlayerEnter,OnTriggerEnter,PlayerExtracted,LeaveLevel", "Comma-separated extraction method candidates.");
 
         MinimumHeistersToExtract = config.Bind("Extraction", "MinimumHeistersToExtract", 1, "Minimum extracted Heisters required for Heister victory.");
         DebugCashAmount = config.Bind("Debug", "DebugCashAmount", 5000, "Cash added by F7 for testing.");
