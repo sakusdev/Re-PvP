@@ -6,6 +6,8 @@ namespace RePvP;
 
 public sealed class UnityLocalPlayerResolver : ILocalPlayerResolver
 {
+    private const float RetryIntervalSeconds = 2f;
+
     private static readonly string[] LocalNameHints =
     {
         "Local",
@@ -13,15 +15,32 @@ public sealed class UnityLocalPlayerResolver : ILocalPlayerResolver
         "Camera"
     };
 
+    private GameObject? _cachedLocalPlayer;
+    private float _nextRetryTime;
+
     public GameObject? GetLocalPlayerObject()
     {
         // TODO: Replace with R.E.P.O.'s actual local player accessor.
-        // Heuristic: first active object with a Camera in its children and player-like name.
-        return UnityEngine.Object
-            .FindObjectsOfType<GameObject>()
-            .Where(go => go != null && go.activeInHierarchy)
-            .Where(go => LocalNameHints.Any(hint => go.name.Contains(hint, StringComparison.OrdinalIgnoreCase)))
-            .FirstOrDefault(go => go.GetComponentInChildren<Camera>() != null);
+        // This cache avoids running a scene-wide search every frame while Pulse Scan input is checked.
+        if (_cachedLocalPlayer != null && _cachedLocalPlayer.activeInHierarchy)
+        {
+            return _cachedLocalPlayer;
+        }
+
+        if (Time.unscaledTime < _nextRetryTime)
+        {
+            return _cachedLocalPlayer;
+        }
+
+        _nextRetryTime = Time.unscaledTime + RetryIntervalSeconds;
+        _cachedLocalPlayer = FindLocalPlayerObject();
+
+        if (_cachedLocalPlayer != null)
+        {
+            Plugin.Log.LogInfo($"Local player candidate cached: {_cachedLocalPlayer.name} ({_cachedLocalPlayer.GetInstanceID()})");
+        }
+
+        return _cachedLocalPlayer;
     }
 
     public bool IsLocalPlayer(PlayerRef player)
@@ -35,5 +54,14 @@ public sealed class UnityLocalPlayerResolver : ILocalPlayerResolver
         return local == player.GameObject
             || local.transform.IsChildOf(player.GameObject.transform)
             || player.GameObject.transform.IsChildOf(local.transform);
+    }
+
+    private static GameObject? FindLocalPlayerObject()
+    {
+        return UnityEngine.Object
+            .FindObjectsOfType<GameObject>()
+            .Where(go => go != null && go.activeInHierarchy)
+            .Where(go => LocalNameHints.Any(hint => go.name.IndexOf(hint, StringComparison.OrdinalIgnoreCase) >= 0))
+            .FirstOrDefault(go => go.GetComponentInChildren<Camera>() != null);
     }
 }
