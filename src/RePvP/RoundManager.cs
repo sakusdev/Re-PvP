@@ -120,6 +120,25 @@ public sealed class RoundManager
         TriggerAlarm();
     }
 
+    public bool ExtractNextHeisterForDebug()
+    {
+        if (Phase != GamePhase.Extraction)
+        {
+            Plugin.Log.LogInfo($"Debug extraction ignored during phase: {Phase}");
+            return false;
+        }
+
+        var nextHeister = _roleManager.Heisters.FirstOrDefault(h => !_extractedHeisterIds.Contains(h.Id));
+        if (nextHeister == null)
+        {
+            Plugin.Log.LogInfo("Debug extraction ignored: no remaining Heisters to extract.");
+            return false;
+        }
+
+        Plugin.Log.LogInfo($"Debug: extracting next Heister: {nextHeister.DisplayName}");
+        return MarkHeisterExtracted(nextHeister);
+    }
+
     public void EndRoundForDebug(Team winner)
     {
         EndRound(winner, "Debug forced round end.");
@@ -149,7 +168,29 @@ public sealed class RoundManager
         Plugin.Log.LogInfo($"Hunter: {snapshot.HunterName ?? "None"}");
         Plugin.Log.LogInfo($"Heisters: {snapshot.HeisterCount}");
         Plugin.Log.LogInfo($"Extracted: {snapshot.ExtractedCount}");
+        LogTeamDetails();
         Plugin.Log.LogInfo("==========================");
+    }
+
+    public void LogTeamDetails()
+    {
+        Plugin.Log.LogInfo("--- Re-PvP Teams ---");
+        Plugin.Log.LogInfo($"Hunter: {_roleManager.Hunter?.DisplayName ?? "None"}");
+
+        if (_roleManager.Heisters.Count == 0)
+        {
+            Plugin.Log.LogInfo("Heisters: none");
+        }
+        else
+        {
+            foreach (var heister in _roleManager.Heisters)
+            {
+                var extracted = _extractedHeisterIds.Contains(heister.Id) ? "extracted" : "active";
+                Plugin.Log.LogInfo($"Heister: {heister.DisplayName} [{extracted}]");
+            }
+        }
+
+        Plugin.Log.LogInfo("--------------------");
     }
 
     public bool TryMarkHeisterExtracted(GameObject gameObject)
